@@ -4,18 +4,18 @@ import (
 	"context"
 	"time"
 
-	"github.com/go-playground/validator/v10"
-
 	"task_manager/domain/entity"
 	"task_manager/domain/task"
 	taskoptions "task_manager/domain/task/task_option"
+
+	"github.com/go-playground/validator/v10"
 )
 
 type CreateTaskRequest struct {
-	Title       string            `validate:"required"`
-	Description string            `validate:"required"`
-	DueDate     time.Time         `validate:"required"`
-	Status      entity.StatusType `validate:"required,lt=3"`
+	Title       string    `validate:"required"`
+	Description string    `validate:"required"`
+	DueDate     time.Time `validate:"required"`
+	Status      string    `validate:"required,lowercase"`
 }
 
 func (r CreateTaskRequest) Validate() error {
@@ -27,10 +27,10 @@ func (r CreateTaskRequest) Validate() error {
 }
 
 type UpdateTaskRequest struct {
-	Title       string            `validate:"required"`
-	Description string            `validate:"required"`
-	DueDate     time.Time         `validate:"required"`
-	Status      entity.StatusType `validate:"required,lt=3"`
+	Title       string    `validate:"required"`
+	Description string    `validate:"required"`
+	DueDate     time.Time `validate:"required"`
+	Status      string    `validate:"required,lowercase"`
 }
 
 func (r UpdateTaskRequest) Validate() error {
@@ -54,7 +54,7 @@ func (r DeleteTaskRequest) Validate() error {
 }
 
 type ListTasksRequest struct {
-	TaskStatus *entity.StatusType `validate:"omitempty,lt=3"`
+	TaskStatus *string `validate:"omitempty"`
 }
 
 func (r ListTasksRequest) Validate() error {
@@ -90,7 +90,7 @@ func (t *taskUsecase) CreateTask(ctx context.Context, req CreateTaskRequest) (*e
 		Title:       req.Title,
 		Description: req.Description,
 		DueDate:     req.DueDate,
-		Status:      req.Status,
+		Status:      entity.StringToStatusTypeMapping[req.Status],
 	}
 
 	task, err := t.taskRepo.Create(ctx, task)
@@ -110,7 +110,7 @@ func (t *taskUsecase) UpdateTask(ctx context.Context, req UpdateTaskRequest) (*e
 		Title:       req.Title,
 		Description: req.Description,
 		DueDate:     req.DueDate,
-		Status:      req.Status,
+		Status:      entity.StringToStatusTypeMapping[req.Status],
 	}
 
 	task, err := t.taskRepo.Update(ctx, task)
@@ -141,7 +141,7 @@ func (t *taskUsecase) ListTasks(ctx context.Context, req ListTasksRequest) ([]*e
 
 	var options taskoptions.OptionSetter
 	if req.TaskStatus != nil {
-		options = taskoptions.WithStatus(*req.TaskStatus)
+		options = taskoptions.WithStatus(entity.StringToStatusTypeMapping[*req.TaskStatus])
 	}
 
 	tasks, err := t.taskRepo.List(ctx, options)
