@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"task_manager/domain/entity"
@@ -86,11 +87,16 @@ func (t *taskUsecase) CreateTask(ctx context.Context, req CreateTaskRequest) (*e
 		return nil, err
 	}
 
+	status, exists := entity.StringToStatusTypeMapping[req.Status]
+	if !exists {
+		return nil, errors.New("invalid status value")
+	}
+
 	task := &entity.Task{
 		Title:       req.Title,
 		Description: req.Description,
 		DueDate:     req.DueDate,
-		Status:      entity.StringToStatusTypeMapping[req.Status],
+		Status:      status,
 	}
 
 	task, err := t.taskRepo.Create(ctx, task)
@@ -106,11 +112,16 @@ func (t *taskUsecase) UpdateTask(ctx context.Context, req UpdateTaskRequest) (*e
 		return nil, err
 	}
 
+	status, exists := entity.StringToStatusTypeMapping[req.Status]
+	if !exists {
+		return nil, errors.New("invalid status value")
+	}
+
 	task := &entity.Task{
 		Title:       req.Title,
 		Description: req.Description,
 		DueDate:     req.DueDate,
-		Status:      entity.StringToStatusTypeMapping[req.Status],
+		Status:      status,
 	}
 
 	task, err := t.taskRepo.Update(ctx, task)
@@ -141,7 +152,11 @@ func (t *taskUsecase) ListTasks(ctx context.Context, req ListTasksRequest) ([]*e
 
 	var options taskoptions.OptionSetter
 	if req.TaskStatus != nil {
-		options = taskoptions.WithStatus(entity.StringToStatusTypeMapping[*req.TaskStatus])
+		status, exists := entity.StringToStatusTypeMapping[*req.TaskStatus]
+		if !exists {
+			return nil, errors.New("invalid status value")
+		}
+		options = taskoptions.WithStatus(status)
 	}
 
 	tasks, err := t.taskRepo.List(ctx, options)
