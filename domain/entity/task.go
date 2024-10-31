@@ -2,30 +2,32 @@ package entity
 
 import "time"
 
-type StatusType int
+type TaskStatus int
 
 const (
-	StatusTypeComplete StatusType = iota
-	StatusTypePending
-	StatusTypeOngoing
+	TaskStatusComplete TaskStatus = iota
+	TaskStatusPending
+	TaskStatusOngoing
 )
 
-var StringToStatusTypeMapping = map[string]StatusType{
-	"complete": StatusTypeComplete,
-	"pending":  StatusTypePending,
-	"ongoing":  StatusTypeOngoing,
+var StringToTaskStatusMapping = map[string]TaskStatus{
+	"COMPLETE": TaskStatusComplete,
+	"PENDING":  TaskStatusPending,
+	"ONGOING":  TaskStatusOngoing,
 }
 
-var StatusTypeToStringMapping = map[StatusType]string{
-	StatusTypeComplete: "complete",
-	StatusTypePending:  "pending",
-	StatusTypeOngoing:  "ongoing",
+var TaskStatusToStringMapping = map[TaskStatus]string{
+	TaskStatusComplete: "COMPLETE",
+	TaskStatusPending:  "PENDING",
+	TaskStatusOngoing:  "ONGOING",
 }
 
 type Task struct {
 	ID          int
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 	Title       string
 	Description string
-	Status      StatusType
-	DueDate     time.Time
+	Status      TaskStatus
+	DueDate     *time.Time
 }

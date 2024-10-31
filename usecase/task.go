@@ -13,10 +13,10 @@ import (
 )
 
 type CreateTaskRequest struct {
-	Title       string    `validate:"required"`
-	Description string    `validate:"required"`
-	DueDate     time.Time `validate:"required"`
-	Status      string    `validate:"required,lowercase"`
+	Title       string     `validate:"required"`
+	Description string     `validate:"required"`
+	DueDate     *time.Time `validate:"omitempty"`
+	Status      string     `validate:"required,uppercase"`
 }
 
 func (r CreateTaskRequest) Validate() error {
@@ -28,10 +28,11 @@ func (r CreateTaskRequest) Validate() error {
 }
 
 type UpdateTaskRequest struct {
-	Title       string    `validate:"required"`
-	Description string    `validate:"required"`
-	DueDate     time.Time `validate:"required"`
-	Status      string    `validate:"required,lowercase"`
+	ID          int        `validate:"required"`
+	Title       string     `validate:"required"`
+	Description string     `validate:"required"`
+	DueDate     *time.Time `validate:"omitempty"`
+	Status      string     `validate:"required,uppercase"`
 }
 
 func (r UpdateTaskRequest) Validate() error {
@@ -87,7 +88,7 @@ func (t *taskUsecase) CreateTask(ctx context.Context, req CreateTaskRequest) (*e
 		return nil, err
 	}
 
-	status, exists := entity.StringToStatusTypeMapping[req.Status]
+	status, exists := entity.StringToTaskStatusMapping[req.Status]
 	if !exists {
 		return nil, errors.New("invalid status value")
 	}
@@ -112,16 +113,18 @@ func (t *taskUsecase) UpdateTask(ctx context.Context, req UpdateTaskRequest) (*e
 		return nil, err
 	}
 
-	status, exists := entity.StringToStatusTypeMapping[req.Status]
+	status, exists := entity.StringToTaskStatusMapping[req.Status]
 	if !exists {
 		return nil, errors.New("invalid status value")
 	}
 
 	task := &entity.Task{
+		ID:          req.ID,
 		Title:       req.Title,
 		Description: req.Description,
 		DueDate:     req.DueDate,
 		Status:      status,
+		UpdatedAt:   time.Now(),
 	}
 
 	task, err := t.taskRepo.Update(ctx, task)
@@ -150,16 +153,20 @@ func (t *taskUsecase) ListTasks(ctx context.Context, req ListTasksRequest) ([]*e
 		return nil, err
 	}
 
-	var options taskoptions.OptionSetter
+	var options []taskoptions.OptionSetter
 	if req.TaskStatus != nil {
-		status, exists := entity.StringToStatusTypeMapping[*req.TaskStatus]
-		if !exists {
-			return nil, errors.New("invalid status value")
+		if status, exists := entity.StringToTaskStatusMapping[*req.TaskStatus]; exists {
+			options = append(options, taskoptions.WithStatus(status))
 		}
-		options = taskoptions.WithStatus(status)
 	}
 
-	tasks, err := t.taskRepo.List(ctx, options)
+	var tasks []*entity.Task
+	var err error
+	if len(options) > 0 {
+		tasks, err = t.taskRepo.List(ctx, options...)
+	} else {
+		tasks, err = t.taskRepo.List(ctx)
+	}
 	if err != nil {
 		return nil, err
 	}
