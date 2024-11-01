@@ -20,5 +20,5 @@ type WriteRepository interface {
 }
 
 type ReadRepository interface {
-	List(ctx context.Context, opts ...task_option.OptionSetter) ([]*entity.Task, error)
+	Get(ctx context.Context, opts ...task_option.OptionSetter) (entity.Tasks, error)
 }

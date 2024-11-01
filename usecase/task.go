@@ -72,7 +72,7 @@ type TaskUsecase interface {
 	UpdateTask(ctx context.Context, req UpdateTaskRequest) (*entity.Task, error)
 	DeleteTask(ctx context.Context, req DeleteTaskRequest) error
 
-	ListTasks(ctx context.Context, req ListTasksRequest) ([]*entity.Task, error)
+	GetTasks(ctx context.Context, req ListTasksRequest) (entity.Tasks, error)
 }
 
 type taskUsecase struct {
@@ -148,7 +148,7 @@ func (t *taskUsecase) DeleteTask(ctx context.Context, req DeleteTaskRequest) err
 	return nil
 }
 
-func (t *taskUsecase) ListTasks(ctx context.Context, req ListTasksRequest) ([]*entity.Task, error) {
+func (t *taskUsecase) GetTasks(ctx context.Context, req ListTasksRequest) (entity.Tasks, error) {
 	if err := req.Validate(); err != nil {
 		return nil, err
 	}
@@ -160,12 +160,12 @@ func (t *taskUsecase) ListTasks(ctx context.Context, req ListTasksRequest) ([]*e
 		}
 	}
 
-	var tasks []*entity.Task
+	var tasks entity.Tasks
 	var err error
 	if len(options) > 0 {
-		tasks, err = t.taskRepo.List(ctx, options...)
+		tasks, err = t.taskRepo.Get(ctx, options...)
 	} else {
-		tasks, err = t.taskRepo.List(ctx)
+		tasks, err = t.taskRepo.Get(ctx)
 	}
 	if err != nil {
 		return nil, err

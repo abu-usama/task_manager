@@ -22,6 +22,8 @@ var TaskStatusToStringMapping = map[TaskStatus]string{
 	TaskStatusOngoing:  "ONGOING",
 }
 
+type Tasks []Task
+
 type Task struct {
 	ID          int
 	CreatedAt   time.Time

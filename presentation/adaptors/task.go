@@ -22,7 +22,7 @@ func ToTaskResponse(task *entity.Task) models.Common {
 	}
 }
 
-func ToListTasksResponse(tasks []*entity.Task) models.Common {
+func ToListTasksResponse(tasks entity.Tasks) models.Common {
 	tasksResponse := models.ListTasksResponse{}
 	for _, task := range tasks {
 		taskResponse := &models.TaskResponse{

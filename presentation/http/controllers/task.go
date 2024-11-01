@@ -13,7 +13,7 @@ type TaskController interface {
 	UpdateTask(ctx *fiber.Ctx) error
 	DeleteTask(ctx *fiber.Ctx) error
 
-	ListTasks(ctx *fiber.Ctx) error
+	GetTasks(ctx *fiber.Ctx) error
 }
 
 type taskController struct {
@@ -24,6 +24,14 @@ func NewTaskController(taskUsecase usecase.TaskUsecase) TaskController {
 	return &taskController{taskUsecase: taskUsecase}
 }
 
+// @Summary Create a new Task
+// @Tags Tasks
+// @Accept   json
+// @Produce  json
+// @Param    body        body models.CreateTaskRequest true "Task details"
+// @Success 200 {object} models.TaskResponse
+// @Failure 400 string error
+// @Router /tasks [post]
 func (t *taskController) CreateTask(ctx *fiber.Ctx) error {
 	req := models.CreateTaskRequest{}
 	if err := ctx.BodyParser(&req); err != nil {
@@ -46,6 +54,14 @@ func (t *taskController) CreateTask(ctx *fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(response)
 }
 
+// @Summary Update a Task
+// @Tags Tasks
+// @Accept   json
+// @Produce  json
+// @Param    body        body models.UpdateTaskRequest true "Task details"
+// @Success 200 {object} models.TaskResponse
+// @Failure 400 string error
+// @Router /tasks [put]
 func (t *taskController) UpdateTask(ctx *fiber.Ctx) error {
 	req := models.UpdateTaskRequest{}
 	if err := ctx.BodyParser(&req); err != nil {
@@ -69,6 +85,14 @@ func (t *taskController) UpdateTask(ctx *fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(response)
 }
 
+// @Summary Delete a Task
+// @Tags Tasks
+// @Accept   json
+// @Produce  json
+// @Param    body        body models.DeleteTaskRequest true "Task ID"
+// @Success 200 string OK
+// @Failure 400 string error
+// @Router /tasks [delete]
 func (t *taskController) DeleteTask(ctx *fiber.Ctx) error {
 	req := models.DeleteTaskRequest{}
 	if err := ctx.BodyParser(&req); err != nil {
@@ -87,12 +111,20 @@ func (t *taskController) DeleteTask(ctx *fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).SendString("OK")
 }
 
-func (t *taskController) ListTasks(ctx *fiber.Ctx) error {
+// @Summary List all Tasks
+// @Tags Tasks
+// @Accept   json
+// @Produce  json
+// @Param    status query string false "Task status"
+// @Success 200 {object} models.ListTasksResponse
+// @Failure 400 {string} error
+// @Router /tasks [get]
+func (t *taskController) GetTasks(ctx *fiber.Ctx) error {
 	var req usecase.ListTasksRequest
 	status := ctx.Query("status")
 	req.TaskStatus = &status
 
-	tasks, err := t.taskUsecase.ListTasks(ctx.Context(), req)
+	tasks, err := t.taskUsecase.GetTasks(ctx.Context(), req)
 	if err != nil {
 		return err
 	}
