@@ -4,12 +4,24 @@ import "time"
 
 // Request
 
-type TaskRequest struct {
+type CreateTaskRequest struct {
 	ID          int        `json:"id"`
 	Title       string     `json:"title"`
 	Description string     `json:"description"`
 	DueDate     *time.Time `json:"due_date"`
 	Status      string     `json:"status"`
+}
+
+type UpdateTaskRequest struct {
+	ID          int        `json:"id"`
+	Title       string     `json:"title"`
+	Description string     `json:"description"`
+	DueDate     *time.Time `json:"due_date"`
+	Status      string     `json:"status"`
+}
+
+type DeleteTaskRequest struct {
+	ID int `json:"id"`
 }
 
 // Response

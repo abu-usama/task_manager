@@ -25,7 +25,7 @@ func NewTaskController(taskUsecase usecase.TaskUsecase) TaskController {
 }
 
 func (t *taskController) CreateTask(ctx *fiber.Ctx) error {
-	req := models.TaskRequest{}
+	req := models.CreateTaskRequest{}
 	if err := ctx.BodyParser(&req); err != nil {
 		return FiberFailedBodyParseError(err)
 	}
@@ -47,7 +47,7 @@ func (t *taskController) CreateTask(ctx *fiber.Ctx) error {
 }
 
 func (t *taskController) UpdateTask(ctx *fiber.Ctx) error {
-	req := models.TaskRequest{}
+	req := models.UpdateTaskRequest{}
 	if err := ctx.BodyParser(&req); err != nil {
 		return FiberFailedBodyParseError(err)
 	}
@@ -70,7 +70,7 @@ func (t *taskController) UpdateTask(ctx *fiber.Ctx) error {
 }
 
 func (t *taskController) DeleteTask(ctx *fiber.Ctx) error {
-	req := models.TaskRequest{}
+	req := models.DeleteTaskRequest{}
 	if err := ctx.BodyParser(&req); err != nil {
 		return FiberFailedBodyParseError(err)
 	}
