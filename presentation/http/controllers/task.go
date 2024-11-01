@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"task_manager/presentation/adaptors"
+	"task_manager/presentation/models"
 	"task_manager/usecase"
 
 	"github.com/gofiber/fiber/v2"
@@ -24,12 +25,19 @@ func NewTaskController(taskUsecase usecase.TaskUsecase) TaskController {
 }
 
 func (t *taskController) CreateTask(ctx *fiber.Ctx) error {
-	var req usecase.CreateTaskRequest
+	req := models.TaskRequest{}
 	if err := ctx.BodyParser(&req); err != nil {
 		return FiberFailedBodyParseError(err)
 	}
 
-	task, err := t.taskUsecase.CreateTask(ctx.Context(), req)
+	taskReq := usecase.CreateTaskRequest{
+		Title:       req.Title,
+		Description: req.Description,
+		DueDate:     req.DueDate,
+		Status:      req.Status,
+	}
+
+	task, err := t.taskUsecase.CreateTask(ctx.Context(), taskReq)
 	if err != nil {
 		return err
 	}
@@ -39,12 +47,20 @@ func (t *taskController) CreateTask(ctx *fiber.Ctx) error {
 }
 
 func (t *taskController) UpdateTask(ctx *fiber.Ctx) error {
-	var req usecase.UpdateTaskRequest
+	req := models.TaskRequest{}
 	if err := ctx.BodyParser(&req); err != nil {
 		return FiberFailedBodyParseError(err)
 	}
 
-	task, err := t.taskUsecase.UpdateTask(ctx.Context(), req)
+	taskReq := usecase.UpdateTaskRequest{
+		ID:          req.ID,
+		Title:       req.Title,
+		Description: req.Description,
+		DueDate:     req.DueDate,
+		Status:      req.Status,
+	}
+
+	task, err := t.taskUsecase.UpdateTask(ctx.Context(), taskReq)
 	if err != nil {
 		return err
 	}
@@ -54,12 +70,16 @@ func (t *taskController) UpdateTask(ctx *fiber.Ctx) error {
 }
 
 func (t *taskController) DeleteTask(ctx *fiber.Ctx) error {
-	var req usecase.DeleteTaskRequest
+	req := models.TaskRequest{}
 	if err := ctx.BodyParser(&req); err != nil {
 		return FiberFailedBodyParseError(err)
 	}
 
-	err := t.taskUsecase.DeleteTask(ctx.Context(), req)
+	taskReq := usecase.DeleteTaskRequest{
+		ID: req.ID,
+	}
+
+	err := t.taskUsecase.DeleteTask(ctx.Context(), taskReq)
 	if err != nil {
 		return err
 	}
@@ -69,9 +89,6 @@ func (t *taskController) DeleteTask(ctx *fiber.Ctx) error {
 
 func (t *taskController) ListTasks(ctx *fiber.Ctx) error {
 	var req usecase.ListTasksRequest
-	// if err := ctx.BodyParser(&req); err != nil {
-	// 	return FiberFailedBodyParseError(err)
-	// }
 	status := ctx.Query("status")
 	req.TaskStatus = &status
 
