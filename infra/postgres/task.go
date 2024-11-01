@@ -37,7 +37,7 @@ func (p *TaskRow) TableName() string {
 	return "tasks"
 }
 
-func (t *TaskRow) ToDomain() *entity.Task {
+func (t *TaskRow) ToTaskDomain() *entity.Task {
 	return &entity.Task{
 		ID:          t.ID,
 		CreatedAt:   t.CreatedAt,
@@ -49,7 +49,7 @@ func (t *TaskRow) ToDomain() *entity.Task {
 	}
 }
 
-func (TaskRow) FromDomain(task entity.Task) *TaskRow {
+func (TaskRow) FromTaskDomain(task entity.Task) *TaskRow {
 	return &TaskRow{
 		Common: Common{
 			ID:        task.ID,
@@ -84,21 +84,21 @@ func NewTaskRepositoryPostgres(DB *gorm.DB) task.Repository {
 }
 
 func (c *TaskWriteRepositoryPostgres) Create(ctx context.Context, task *entity.Task) (*entity.Task, error) {
-	taskRow := TaskRow{}.FromDomain(*task)
+	taskRow := TaskRow{}.FromTaskDomain(*task)
 	if err := c.DB.WithContext(ctx).Create(&taskRow).Error; err != nil {
 		return nil, fmt.Errorf(ErrFailedToCreateTask, err)
 	}
 
-	return taskRow.ToDomain(), nil
+	return taskRow.ToTaskDomain(), nil
 }
 
 func (c *TaskWriteRepositoryPostgres) Update(ctx context.Context, task *entity.Task) (*entity.Task, error) {
-	taskRow := TaskRow{}.FromDomain(*task)
+	taskRow := TaskRow{}.FromTaskDomain(*task)
 	if err := c.DB.WithContext(ctx).Model(&TaskRow{}).Where("id = ?", taskRow.ID).Updates(&taskRow).Error; err != nil {
 		return nil, fmt.Errorf(ErrFailedToUpdateTask, err)
 	}
 
-	return taskRow.ToDomain(), nil
+	return taskRow.ToTaskDomain(), nil
 }
 
 func (c *TaskWriteRepositoryPostgres) Delete(ctx context.Context, id int) error {
@@ -111,7 +111,7 @@ func (c *TaskWriteRepositoryPostgres) Delete(ctx context.Context, id int) error 
 	return nil
 }
 
-func (c *TaskWriteRepositoryPostgres) List(ctx context.Context, opts ...taskoptions.OptionSetter) ([]*entity.Task, error) {
+func (c *TaskWriteRepositoryPostgres) Get(ctx context.Context, opts ...taskoptions.OptionSetter) (entity.Tasks, error) {
 	var options = &taskoptions.TaskOptions{}
 	for _, setter := range opts {
 		setter(options)
@@ -129,10 +129,10 @@ func (c *TaskWriteRepositoryPostgres) List(ctx context.Context, opts ...taskopti
 	if err != nil {
 		return nil, err
 	}
-	var tasks []*entity.Task
+	var tasks entity.Tasks
 	for _, row := range taskRows {
-		task := row.ToDomain()
-		tasks = append(tasks, task)
+		task := row.ToTaskDomain()
+		tasks = append(tasks, *task)
 	}
 
 	return tasks, nil

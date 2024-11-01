@@ -1,0 +1,156 @@
+basePath: /api/v1/
+definitions:
+  models.CreateTaskRequest:
+    properties:
+      description:
+        type: string
+      due_date:
+        type: string
+      status:
+        type: string
+      title:
+        type: string
+    type: object
+  models.DeleteTaskRequest:
+    properties:
+      id:
+        type: integer
+    type: object
+  models.ListTasksResponse:
+    properties:
+      tasks:
+        items:
+          $ref: '#/definitions/models.TaskResponse'
+        type: array
+    type: object
+  models.TaskResponse:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      due_date:
+        type: string
+      id:
+        type: integer
+      status:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.UpdateTaskRequest:
+    properties:
+      description:
+        type: string
+      due_date:
+        type: string
+      id:
+        type: integer
+      status:
+        type: string
+      title:
+        type: string
+    type: object
+info:
+  contact: {}
+  title: TASK MANAGER API
+  version: "1.0"
+paths:
+  /tasks:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Task ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.DeleteTaskRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: Delete a Task
+      tags:
+      - Tasks
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Task status
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ListTasksResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: List all Tasks
+      tags:
+      - Tasks
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Task details
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateTaskRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.TaskResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: Create a new Task
+      tags:
+      - Tasks
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Task details
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateTaskRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.TaskResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: Update a Task
+      tags:
+      - Tasks
+swagger: "2.0"

@@ -6,11 +6,13 @@ import (
 
 	"task_manager/config"
 	"task_manager/database"
+	"task_manager/docs"
 	"task_manager/presentation/http"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/gofiber/swagger"
 )
 
 // @title TASK MANAGER API
@@ -21,33 +23,17 @@ func main() {
 	log.Println("Go Lang Server Running")
 
 	conf := config.GetEnv()
+	docs.SwaggerInfo.Host = conf.SwaggerHost
+	corsConfig := config.CorsConfig()
 
 	fmt.Println(conf)
-	// swaggerHost := conf.SwaggerHost
-	// if swaggerHost == "" {
-	// 	swaggerHost = "localhost"
-	// }
-
-	// docs.SwaggerInfo.Host = swaggerHost
 
 	database.ConnectDb()
 
-	// errorLogRepo := postgress.NewErrorLogRepositoryPostgres(database.DB)
-
-	// app := fiber.New(fiber.Config{
-	// 	ErrorHandler: middlewares.ErrorHandlingMiddleware(errorLogRepo),
-	// })
-
-	corsConfig := cors.Config{
-		AllowOrigins: "http://locahost:3000,  http://127.0.0.1:3000, http://localhost",
-		AllowHeaders: "Origin, Content-Type, Accept",
-		AllowMethods: "GET,POST,PUT,DELETE",
-	}
-
 	app := fiber.New()
+	app.Get("/swagger/*", swagger.HandlerDefault)
 	app.Use(cors.New(corsConfig))
 	app.Use(recover.New())
-	// app.Use(middlewares.CustomLogger())
 
 	http.Router(app)
 

@@ -19,5 +19,5 @@ func Router(app *fiber.App) {
 	apiV1.Post("/tasks", taskCtrl.CreateTask)
 	apiV1.Put("/tasks", taskCtrl.UpdateTask)
 	apiV1.Delete("/tasks", taskCtrl.DeleteTask)
-	apiV1.Get("/tasks", taskCtrl.ListTasks)
+	apiV1.Get("/tasks", taskCtrl.GetTasks)
 }
